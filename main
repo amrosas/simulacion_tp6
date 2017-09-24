@@ -10,8 +10,8 @@ class Simulacion
     @nsr = 0
     @nt = 0
     @tiempoProximaSalida = []
-    for i in  0..cantidadMedicos
-      @tiempoProximaSalida[i] = 65532
+    for i in  0..cantidadmedicos-1
+      @tiempoProximaSalida[i] = -1
     end
   end
 
