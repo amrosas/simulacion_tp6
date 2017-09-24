@@ -1,4 +1,5 @@
 class Simulacion
+  attr_accessor :nsvax, :cantidadmedicos, :tiempoProximaLlegada, :sumatoriaProximaSalida, :sumatoriaTiempoAtencion, :nsv, :nsa, :nsr, :nt, :tiempoProximaSalida
   def initialize(nsvMax, cantidadMedicos)
     @nsvax = nsvMax
     @cantidadmedicos = cantidadMedicos
@@ -17,7 +18,7 @@ class Simulacion
 
   def printValues
     for i in 0..cantidadmedicos-1
-      puts @tiempoProximaLlegada[i]
+      puts @tiempoProximaSalida[i]
     end
   end
 end
