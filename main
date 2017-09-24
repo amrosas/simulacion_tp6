@@ -1,0 +1,28 @@
+class Simulacion
+  def initialize(nsvMax, cantidadMedicos)
+    @nsvax = nsvMax
+    @cantidadmedicos = cantidadMedicos
+    @tiempoProximaLlegada = 0
+    @sumatoriaProximaSalida = 0
+    @sumatoriaTiempoAtencion = 0
+    @nsv = 0
+    @nsa = 0
+    @nsr = 0
+    @nt = 0
+    @tiempoProximaSalida = []
+    for i in  0..cantidadMedicos
+      @tiempoProximaSalida[i] = 65532
+    end
+  end
+
+  def printValues
+    for i in 0..@tiempoProximaSalida.length
+      puts @tiempoProximaLlegada[i]
+    end
+  end
+end
+
+simulacion = Simulacion.new(15,20)
+
+simulacion.printValues()
+
