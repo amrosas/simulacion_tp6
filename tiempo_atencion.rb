@@ -1,4 +1,4 @@
-class IntervaloArribos
+class TiempoAtencion
   def calcular()
     while true
       nroRandom = Random.new().rand()
