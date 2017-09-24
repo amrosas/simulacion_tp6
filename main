@@ -16,7 +16,7 @@ class Simulacion
   end
 
   def printValues
-    for i in 0..@tiempoProximaSalida.length
+    for i in 0..cantidadmedicos-1
       puts @tiempoProximaLlegada[i]
     end
   end
