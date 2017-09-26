@@ -1,15 +1,25 @@
 
+
 class Simulacion
   def initialize(nsvMax, cantidadMedicos)
-    $nsvmax = nsvMax    					#Corregir nsvmax
+    $nsvmax = nsvMax    					
     $cantidadmedicos = cantidadMedicos
     $tiempoProximaLlegada = 0
-    $sumatoriaPermanenciaSistema = 0      #Corregir nombre
+    $sumatoriaPermanenciaSistema = 0     
+	$SPSV = 0			#Agregado
+	$SPSA = 0			#Agregado
+	$SPSR = 0			#Agregado
     $sumatoriaTiempoAtencion = 0
+	$STAV = 0			#Agregado
+	$STAA = 0			#Agregado
+	$STAR = 0			#Agregado
     $nsv = 0
     $nsa = 0
     $nsr = 0
     $nt = 0
+	$ntv = 0			#Agregado
+	$nta = 0			#Agregado
+	$ntr = 0			#Agregado
     $tiempoProximaSalida = []
 	$tipoPaciente = []     				#Agregado
 	$nsvsa = 0   						#Agregado
@@ -45,17 +55,21 @@ class Simulacion
   
  
   $sumatoriaPermanenciaSistema = $sumatoriaPermanenciaSistema + ($tpll-$t) * ($nsv+$nsa+$nsr)
+  $SPSV = $SPSV + ($tpll-$t)*$nsv
+  $SPSA = $SPSA + ($tpll-$t)*$nsa
+  $SPSR = $SPSR + ($tpll-$t)*$nsr
+  
   
   $t = $tpll
   
-  #Falta funcion intervalo de arribo
-  $tpll = $t + 1200  #1000 = IA
+  #Intervalo de arribo
+  $tpll = $t + self.tiempoArribo()  
 
   #Parte de la posibilidad del paciente(rojo amarillo verde) Ver realmente el valor de cada uno
   nroRandom = Random.new().rand()
-  if nroRandom < 0.2
+  if nroRandom < 0.1
   x="R"
-	elsif nroRandom<0.5
+	elsif nroRandom<0.4
 	x="A"
 	else
 	x="V"
@@ -77,7 +91,11 @@ class Simulacion
 	
 	$sumatoriaTiempoAtencion = $sumatoriaTiempoAtencion + tiempoDeAtencion
 	
+	$STAV = $STAV + tiempoDeAtencion
+	
 	$tipoPaciente[i] = "V"
+	
+	$ntv = $ntv + 1
 	
 	else
 	
@@ -108,7 +126,11 @@ class Simulacion
 	
 	$sumatoriaTiempoAtencion = $sumatoriaTiempoAtencion + tiempoDeAtencion
 	
+	$STAA = $STAA + tiempoDeAtencion
+	
 	$tipoPaciente[i] = "A"
+	
+	$nta = $nta + 1
   
   
     end
@@ -127,8 +149,12 @@ class Simulacion
 		$tiempoProximaSalida[i] = $t + tiempoDeAtencion
 	
 		$sumatoriaTiempoAtencion = $sumatoriaTiempoAtencion +tiempoDeAtencion
+		
+		$STAR = $STAR + tiempoDeAtencion
 	
 		$tipoPaciente[i] = "R"
+		
+		$ntr = $ntr + 1
   
 		end
   
@@ -171,7 +197,22 @@ class Simulacion
     return returnValue.round()
   end 
  
+ 
+ 
+ #Calculo el tiempo de arribo
+  def tiempoArribo()
+    while true
+      nroRandom = Random.new().rand()
+      if not(nroRandom==1)
+        returnValue = ((((1/(1-nroRandom))**(1/1.8417))-1)**(1/1.1291))*444.444
+        break
+      end
+    end
+    return returnValue.round()
+  end 
+ 
 
+ 
  
   #Calculo de los distintos pacientes sin atender
   def pacientesSinAtender()
@@ -228,6 +269,11 @@ class Simulacion
   
   $sumatoriaPermanenciaSistema = $sumatoriaPermanenciaSistema + ($tiempoProximaSalida[i] - $t) * ($nsv + $nsa + $nsr)
   
+  $SPSV = $SPSV + ($tiempoProximaSalida[i]-$t)*$nsv
+  $SPSA = $SPSA + ($tiempoProximaSalida[i]-$t)*$nsa
+  $SPSR = $SPSR + ($tiempoProximaSalida[i]-$t)*$nsr
+  
+  
   $t = $tiempoProximaSalida[i]
   
   x = $tipoPaciente[i]
@@ -253,7 +299,11 @@ class Simulacion
 	
 	$sumatoriaTiempoAtencion = $sumatoriaTiempoAtencion + tiempoDeAtencion
 	
+	$STAR = $STAR + tiempoDeAtencion
+	
 	$tipoPaciente[i] = "R"
+	
+	$ntr = $ntr + 1
 	
 	elsif $nsrsa==0 and $nsasa >= 1
 	
@@ -262,8 +312,12 @@ class Simulacion
 		$tiempoProximaSalida[i] = $t + tiempoDeAtencion
 	
 		$sumatoriaTiempoAtencion = $sumatoriaTiempoAtencion + tiempoDeAtencion
+		
+		$STAA = $STAA + tiempoDeAtencion
 	
 		$tipoPaciente[i] = "A"
+		
+		$nta = $nta + 1
 	
 		elsif $nsasa==0 and $nsrsa==0 and $nsvsa >= 1
 		
@@ -272,8 +326,12 @@ class Simulacion
 			$tiempoProximaSalida[i] = $t + tiempoDeAtencion
 	
 			$sumatoriaTiempoAtencion = $sumatoriaTiempoAtencion + tiempoDeAtencion
+			
+			$STAV = $STAV + tiempoDeAtencion
 	
 			$tipoPaciente[i] = "V"
+			
+			$ntv = $ntv + 1
 		
 		
 		else
@@ -318,7 +376,7 @@ end  #Fin simulacion
    begin
    puts "Realizando simulacion"
    
-simulacion = Simulacion.new(10,17)   # (nsvmax , cantidadmedicos)
+simulacion = Simulacion.new(20,45)
 
 while $t < $tf
 
@@ -355,12 +413,22 @@ end
 
 
 	pec = ($sumatoriaPermanenciaSistema - $sumatoriaTiempoAtencion) / $nt
+	pecV = ($SPSV - $STAV)/$ntv
+	pecA = ($SPSA - $STAA)/$nta
+	pecR = ($SPSR - $STAR)/$ntr
 	puts "Pacientes que pasaron por el sistema: " + $nt.to_s
 	puts "tf en horas: " + ($tf/3600).to_s
 	puts "tf en dias: " + ($tf/(3600*24)).to_s
 	puts "            "
-	puts "Promedio espera en cola en segundos: " + pec.to_s
-	puts "Promedio espera en cola en minutos: " + (pec/60).to_s
+	puts "Promedio espera en cola total en segundos: " + pec.to_s
+	puts "Promedio espera en cola total en minutos: " + (pec/60).to_s
+	puts "Promedio espera en cola verde en segundos: " + pecV.to_s
+	puts "Promedio espera en cola verde en minutos: " + (pecV/60).to_s
+	puts "Promedio espera en cola amarillo en segundos: " + pecA.to_s
+	puts "Promedio espera en cola amarillo en minutos: " + (pecA/60).to_s
+	puts "Promedio espera en cola rojo en segundos: " + pecR.to_s
+	puts "Promedio espera en cola rojo en minutos: " + (pecR/60).to_s
+	
 	puts "Total medicos: " + $cantidadmedicos.to_s
 	puts "nsvMax: " + $nsvmax.to_s
 	gets()
