@@ -2,190 +2,200 @@
 
 class Simulacion
   def initialize(nsvMax, cantidadMedicos)
-    $nsvmax = nsvMax    					
+    $nsvmax = nsvMax
     $cantidadmedicos = cantidadMedicos
     $tiempoProximaLlegada = 0
-    $sumatoriaPermanenciaSistema = 0     
-	$SPSV = 0			#Agregado
-	$SPSA = 0			#Agregado
-	$SPSR = 0			#Agregado
+    $sumatoriaPermanenciaSistema = 0
+    $SPSV = 0			#Agregado
+    $SPSA = 0			#Agregado
+    $SPSR = 0			#Agregado
     $sumatoriaTiempoAtencion = 0
-	$STAV = 0			#Agregado
-	$STAA = 0			#Agregado
-	$STAR = 0			#Agregado
+    $STAV = 0			#Agregado
+    $STAA = 0			#Agregado
+    $STAR = 0			#Agregado
     $nsv = 0
     $nsa = 0
     $nsr = 0
     $nt = 0
-	$ntv = 0			#Agregado
-	$nta = 0			#Agregado
-	$ntr = 0			#Agregado
+    $ntv = 0			#Agregado
+    $nta = 0			#Agregado
+    $ntr = 0			#Agregado
     $tiempoProximaSalida = []
-	$tipoPaciente = []     				#Agregado
-	$nsvsa = 0   						#Agregado
-	$nsasa = 0   						#Agregado
-	$nsrsa = 0   						#Agregado
+    $tipoPaciente = []     				#Agregado
+    $nsvsa = 0   						#Agregado
+    $nsasa = 0   						#Agregado
+    $nsrsa = 0   						#Agregado
+    $intervaloTiempoOcioso = []
+    $sumatoriaTiempoOcioso = []
     for i in  0..$cantidadmedicos-1
       $tiempoProximaSalida[i] = -1
     end
-	
-	
-	for i in  0..$cantidadmedicos-1      #Agregado
+
+
+    for i in  0..$cantidadmedicos-1      #Agregado
       $tipoPaciente[i] = "SA"
+      $intervaloTiempoOcioso[i] = 0
+      $sumatoriaTiempoOcioso[i] = 0
     end
-	
+
   end
 
   def printValues
-    for i in 0..$cantidadmedicos-1         
+    for i in 0..$cantidadmedicos-1
       puts "Medico i: " + i.to_s + " proxima salida: " + $tiempoProximaSalida[i].to_s
-	  
+
     end
 
   end
-  
 
-  
-  
-  
-  
-  
+
+
+
+
+
+
   #FUNCION LLEGADA
   def funcionTPLL()
-  
- 
-  $sumatoriaPermanenciaSistema = $sumatoriaPermanenciaSistema + ($tpll-$t) * ($nsv+$nsa+$nsr)
-  $SPSV = $SPSV + ($tpll-$t)*$nsv
-  $SPSA = $SPSA + ($tpll-$t)*$nsa
-  $SPSR = $SPSR + ($tpll-$t)*$nsr
-  
-  
-  $t = $tpll
-  
-  #Intervalo de arribo
-  $tpll = $t + self.tiempoArribo()  
 
-  #Parte de la posibilidad del paciente(rojo amarillo verde) Ver realmente el valor de cada uno
-  nroRandom = Random.new().rand()
-  if nroRandom < 0.1
-  x="R"
-	elsif nroRandom<0.4
-	x="A"
-	else
-	x="V"
-  
-  end
-  
-  
-  #Condicion si una llegada produce una salida
-  if x=="V"
-	$nsv=$nsv+1
-	
-	if $nsv <= $cantidadmedicos - $nsa - $nsr
-	
-	i=self.buscarMedico()
-	
-	tiempoDeAtencion = self.tiempoAtencion()
-	
-	$tiempoProximaSalida[i] = $t + tiempoDeAtencion
-	
-	$sumatoriaTiempoAtencion = $sumatoriaTiempoAtencion + tiempoDeAtencion
-	
-	$STAV = $STAV + tiempoDeAtencion
-	
-	$tipoPaciente[i] = "V"
-	
-	$ntv = $ntv + 1
-	
-	else
-	
-	self.pacientesSinAtender()
-	
-	if $nsvsa == $nsvmax 
-	$nsv = $nsv-1
-	$nsa = $nsa+1
-	end
-	
-	end
-  
-  
-  
-   
-  
-	elsif x=="A"
-	
-	$nsa = $nsa + 1
-  
-    if $nsa <= $cantidadmedicos - $nsv - $nsr
-	
-    i=self.buscarMedico()
-	
-	tiempoDeAtencion = self.tiempoAtencion()
-	
-	$tiempoProximaSalida[i] = $t + tiempoDeAtencion
-	
-	$sumatoriaTiempoAtencion = $sumatoriaTiempoAtencion + tiempoDeAtencion
-	
-	$STAA = $STAA + tiempoDeAtencion
-	
-	$tipoPaciente[i] = "A"
-	
-	$nta = $nta + 1
-  
-  
+
+    $sumatoriaPermanenciaSistema = $sumatoriaPermanenciaSistema + ($tpll-$t) * ($nsv+$nsa+$nsr)
+    $SPSV = $SPSV + ($tpll-$t)*$nsv
+    $SPSA = $SPSA + ($tpll-$t)*$nsa
+    $SPSR = $SPSR + ($tpll-$t)*$nsr
+
+
+    $t = $tpll
+
+    #Intervalo de arribo
+    $tpll = $t + self.tiempoArribo()
+
+    #Parte de la posibilidad del paciente(rojo amarillo verde) Ver realmente el valor de cada uno
+    nroRandom = Random.new().rand()
+    if nroRandom < 0.1
+      x="R"
+    elsif nroRandom<0.4
+      x="A"
+    else
+      x="V"
+
     end
-  
- 
-  
-		else
-		$nsr = $nsr + 1
-  
-		if $nsr <= $cantidadmedicos - $nsv - $nsa
-	
-		i=self.buscarMedico()
-	
-		tiempoDeAtencion = self.tiempoAtencion()
-	
-		$tiempoProximaSalida[i] = $t + tiempoDeAtencion
-	
-		$sumatoriaTiempoAtencion = $sumatoriaTiempoAtencion +tiempoDeAtencion
-		
-		$STAR = $STAR + tiempoDeAtencion
-	
-		$tipoPaciente[i] = "R"
-		
-		$ntr = $ntr + 1
-  
-		end
-  
- 
+
+
+    #Condicion si una llegada produce una salida
+    if x=="V"
+      $nsv=$nsv+1
+
+      if $nsv <= $cantidadmedicos - $nsa - $nsr
+
+        i=self.buscarMedico()
+
+        tiempoDeAtencion = self.tiempoAtencion()
+
+        $tiempoProximaSalida[i] = $t + tiempoDeAtencion
+
+        $sumatoriaTiempoAtencion = $sumatoriaTiempoAtencion + tiempoDeAtencion
+
+        $sumatoriaTiempoOcioso[i] = $sumatoriaTiempoOcioso[i] + ($t - $intervaloTiempoOcioso[i])
+
+        $STAV = $STAV + tiempoDeAtencion
+
+        $tipoPaciente[i] = "V"
+
+        $ntv = $ntv + 1
+
+      else
+
+        self.pacientesSinAtender()
+
+        if $nsvsa == $nsvmax
+          $nsv = $nsv-1
+          $nsa = $nsa+1
+        end
+
+      end
+
+
+
+
+
+    elsif x=="A"
+
+      $nsa = $nsa + 1
+
+      if $nsa <= $cantidadmedicos - $nsv - $nsr
+
+        i=self.buscarMedico()
+
+        tiempoDeAtencion = self.tiempoAtencion()
+
+        $tiempoProximaSalida[i] = $t + tiempoDeAtencion
+
+        $sumatoriaTiempoAtencion = $sumatoriaTiempoAtencion + tiempoDeAtencion
+
+        $sumatoriaTiempoOcioso[i] = $sumatoriaTiempoOcioso[i] + ($t - $intervaloTiempoOcioso[i])
+
+        $STAA = $STAA + tiempoDeAtencion
+
+        $tipoPaciente[i] = "A"
+
+        $nta = $nta + 1
+
+
+      end
+
+
+
+    else
+      $nsr = $nsr + 1
+
+      if $nsr <= $cantidadmedicos - $nsv - $nsa
+
+        i=self.buscarMedico()
+
+        tiempoDeAtencion = self.tiempoAtencion()
+
+        $tiempoProximaSalida[i] = $t + tiempoDeAtencion
+
+        $sumatoriaTiempoAtencion = $sumatoriaTiempoAtencion +tiempoDeAtencion
+
+        $sumatoriaTiempoOcioso[i] = $sumatoriaTiempoOcioso[i] + ($t - $intervaloTiempoOcioso[i])
+
+        $STAR = $STAR + tiempoDeAtencion
+
+        $tipoPaciente[i] = "R"
+
+        $ntr = $ntr + 1
+
+      end
+
+
+    end
+
+
+
+
+
+
+
   end
-  
-  
-  
-  
-  
-  
-  
-  end
-  
-  
-  
+
+
+
   #Busqueda de medico que no este atendiendo
   def buscarMedico
-  for k in 0..$cantidadmedicos-1
-  if $tiempoProximaSalida[k]== -1
-  i=k
-  
+    for k in 0..$cantidadmedicos-1
+      if $tiempoProximaSalida[k]== -1
+        i=k
+
+      end
+    end
+
+    return i
   end
-  end
-  
-  return i
-  end
-  
- 
- 
- #Calculo el tiempo de atencion
+
+
+
+  #Calculo el tiempo de atencion
   def tiempoAtencion()
     while true
       nroRandom = Random.new().rand()
@@ -195,11 +205,11 @@ class Simulacion
       end
     end
     return returnValue.round()
-  end 
- 
- 
- 
- #Calculo el tiempo de arribo
+  end
+
+
+
+  #Calculo el tiempo de arribo
   def tiempoArribo()
     while true
       nroRandom = Random.new().rand()
@@ -209,149 +219,151 @@ class Simulacion
       end
     end
     return returnValue.round()
-  end 
- 
+  end
 
- 
- 
+
+
+
   #Calculo de los distintos pacientes sin atender
   def pacientesSinAtender()
-  v=0
-  a=0
-  r=0
-  
-  for k in 0..$cantidadmedicos-1
-  
-  if $tipoPaciente[k]== "V"
-  v=v+1
-	elsif $tipoPaciente[k]== "A"
-	a=a+1
-	elsif $tipoPaciente[k]== "R" 
-	r=r+1
-  end
-  
-  $nsvsa = $nsv-v
-  $nsasa = $nsa-a
-  $nsrsa = $nsr-r
+    v=0
+    a=0
+    r=0
+
+    for k in 0..$cantidadmedicos-1
+
+      if $tipoPaciente[k]== "V"
+        v=v+1
+      elsif $tipoPaciente[k]== "A"
+        a=a+1
+      elsif $tipoPaciente[k]== "R"
+        r=r+1
+      end
+
+      $nsvsa = $nsv-v
+      $nsasa = $nsa-a
+      $nsrsa = $nsr-r
+
+    end
 
   end
-  
-  end
-  
-  
+
+
   #Busqueda de la proxima salida
   def tpsMenor
-  
-  i=0
-  
-  
-  for k in 0..$cantidadmedicos-1
 
-  if not($tiempoProximaSalida[k] == -1)
-	if $tiempoProximaSalida[i] == -1
-	i=k
-	elsif not($tiempoProximaSalida[i] <= $tiempoProximaSalida[k])
-	i=k
-	end
-  
+    i=0
+
+
+    for k in 0..$cantidadmedicos-1
+
+      if not($tiempoProximaSalida[k] == -1)
+        if $tiempoProximaSalida[i] == -1
+          i=k
+        elsif not($tiempoProximaSalida[i] <= $tiempoProximaSalida[k])
+          i=k
+        end
+
+      end
+
+
+    end
+
+    return i
   end
-  
-  
-  end
-  
-  return i
-  end
-  
-  
-  
+
+
+
   #FUNCION SALIDA
   def funcionTPS(i)
-  
-  $sumatoriaPermanenciaSistema = $sumatoriaPermanenciaSistema + ($tiempoProximaSalida[i] - $t) * ($nsv + $nsa + $nsr)
-  
-  $SPSV = $SPSV + ($tiempoProximaSalida[i]-$t)*$nsv
-  $SPSA = $SPSA + ($tiempoProximaSalida[i]-$t)*$nsa
-  $SPSR = $SPSR + ($tiempoProximaSalida[i]-$t)*$nsr
-  
-  
-  $t = $tiempoProximaSalida[i]
-  
-  x = $tipoPaciente[i]
-  
-  if x=="V"
-  $nsv = $nsv - 1
-	elsif x=="A"
-	$nsa = $nsa - 1
-	elsif x=="R"
-	$nsr = $nsr - 1
+
+    $sumatoriaPermanenciaSistema = $sumatoriaPermanenciaSistema + ($tiempoProximaSalida[i] - $t) * ($nsv + $nsa + $nsr)
+
+    $SPSV = $SPSV + ($tiempoProximaSalida[i]-$t)*$nsv
+    $SPSA = $SPSA + ($tiempoProximaSalida[i]-$t)*$nsa
+    $SPSR = $SPSR + ($tiempoProximaSalida[i]-$t)*$nsr
+
+
+    $t = $tiempoProximaSalida[i]
+
+    x = $tipoPaciente[i]
+
+    if x=="V"
+      $nsv = $nsv - 1
+    elsif x=="A"
+      $nsa = $nsa - 1
+    elsif x=="R"
+      $nsr = $nsr - 1
+    end
+
+    $tipoPaciente[i]="SA"
+
+    self.pacientesSinAtender()
+
+
+    if $nsrsa >= 1
+
+      tiempoDeAtencion = self.tiempoAtencion()
+
+      $tiempoProximaSalida[i] = $t + tiempoDeAtencion
+
+      $sumatoriaTiempoAtencion = $sumatoriaTiempoAtencion + tiempoDeAtencion
+
+      $STAR = $STAR + tiempoDeAtencion
+
+      $tipoPaciente[i] = "R"
+
+      $ntr = $ntr + 1
+
+    elsif $nsrsa==0 and $nsasa >= 1
+
+      tiempoDeAtencion = self.tiempoAtencion()
+
+      $tiempoProximaSalida[i] = $t + tiempoDeAtencion
+
+      $sumatoriaTiempoAtencion = $sumatoriaTiempoAtencion + tiempoDeAtencion
+
+      $STAA = $STAA + tiempoDeAtencion
+
+      $tipoPaciente[i] = "A"
+
+      $nta = $nta + 1
+
+    elsif $nsasa==0 and $nsrsa==0 and $nsvsa >= 1
+
+      tiempoDeAtencion = self.tiempoAtencion()
+
+      $tiempoProximaSalida[i] = $t + tiempoDeAtencion
+
+      $sumatoriaTiempoAtencion = $sumatoriaTiempoAtencion + tiempoDeAtencion
+
+      $STAV = $STAV + tiempoDeAtencion
+
+      $tipoPaciente[i] = "V"
+
+      $ntv = $ntv + 1
+
+
+    else
+
+      $intervaloTiempoOcioso[i] = $t
+
+      $tiempoProximaSalida[i] = -1
+
+      $tipoPaciente[i] = "SA"
+
+
+    end
+
+
+    $nt = $nt + 1
+
+
   end
- 
-  $tipoPaciente[i]="SA"
-  
-  self.pacientesSinAtender()
-  
-  
-  if $nsrsa >= 1
-	
-	tiempoDeAtencion = self.tiempoAtencion()
-	
-	$tiempoProximaSalida[i] = $t + tiempoDeAtencion
-	
-	$sumatoriaTiempoAtencion = $sumatoriaTiempoAtencion + tiempoDeAtencion
-	
-	$STAR = $STAR + tiempoDeAtencion
-	
-	$tipoPaciente[i] = "R"
-	
-	$ntr = $ntr + 1
-	
-	elsif $nsrsa==0 and $nsasa >= 1
-	
-		tiempoDeAtencion = self.tiempoAtencion()
-	
-		$tiempoProximaSalida[i] = $t + tiempoDeAtencion
-	
-		$sumatoriaTiempoAtencion = $sumatoriaTiempoAtencion + tiempoDeAtencion
-		
-		$STAA = $STAA + tiempoDeAtencion
-	
-		$tipoPaciente[i] = "A"
-		
-		$nta = $nta + 1
-	
-		elsif $nsasa==0 and $nsrsa==0 and $nsvsa >= 1
-		
-			tiempoDeAtencion = self.tiempoAtencion()
-	
-			$tiempoProximaSalida[i] = $t + tiempoDeAtencion
-	
-			$sumatoriaTiempoAtencion = $sumatoriaTiempoAtencion + tiempoDeAtencion
-			
-			$STAV = $STAV + tiempoDeAtencion
-	
-			$tipoPaciente[i] = "V"
-			
-			$ntv = $ntv + 1
-		
-		
-		else
-  
-			$tiempoProximaSalida[i] = -1
-			
-			$tipoPaciente[i] = "SA"
-  
-  
-  end
-  
-  
-  $nt = $nt + 1
-  
- 
-  end
-  
-  
-  
-  
+
+
+
+
 
 end  #Fin simulacion
 
@@ -367,87 +379,96 @@ end  #Fin simulacion
 
 #FUNCION PRINCIPAL
 
- $t=0
- $tpll=0
- $tf=100999990
+$t=0
+$tpll=0
+$tf=100999990
 
- #Lo defini asi para probar si tiene algun error
- def raise_and_rescue
-   begin
-   puts "Realizando simulacion"
-   
-simulacion = Simulacion.new(20,45)
+#Lo defini asi para probar si tiene algun error
+def raise_and_rescue
+  begin
+    puts "Realizando simulacion"
 
-while $t < $tf
+    simulacion = Simulacion.new(20,45)
 
-j=simulacion.tpsMenor()
+    while $t < $tf
 
-
-
-if $tpll <= $tiempoProximaSalida[j] or $tiempoProximaSalida[j]==-1
-
-
-simulacion.funcionTPLL
-
-
-else
-
-
-simulacion.funcionTPS(j)
-
-end
+      j=simulacion.tpsMenor()
 
 
 
-end
+      if $tpll <= $tiempoProximaSalida[j] or $tiempoProximaSalida[j]==-1
+
+
+        simulacion.funcionTPLL
+
+
+      else
+
+
+        simulacion.funcionTPS(j)
+
+      end
+
+
+
+    end
 
 #Hago vaciamiento de cola
-while ($nsv+$nsa+$nsr) > 0  
-j=simulacion.tpsMenor()
+    while ($nsv+$nsa+$nsr) > 0
+      j=simulacion.tpsMenor()
 
 
-simulacion.funcionTPS(j)
+      simulacion.funcionTPS(j)
 
 
-end
+    end
+
+    acumuladorTiempoOcioso = 0
+    for i in  0..$cantidadmedicos-1      #Agregado
+      acumuladorTiempoOcioso = acumuladorTiempoOcioso + $sumatoriaTiempoOcioso[i]
+    end
+
+    promedioTiempoOcioso = acumuladorTiempoOcioso / $cantidadmedicos
+    porcentajeTiempoOcioso = promedioTiempoOcioso * 100 / $t
+
+    pec = ($sumatoriaPermanenciaSistema - $sumatoriaTiempoAtencion) / $nt
+    pecV = ($SPSV - $STAV)/$ntv
+    pecA = ($SPSA - $STAA)/$nta
+    pecR = ($SPSR - $STAR)/$ntr
+    puts "Pacientes que pasaron por el sistema: " + $nt.to_s
+    puts "tf en horas: " + ($tf/3600).to_s
+    puts "tf en dias: " + ($tf/(3600*24)).to_s
+    puts "            "
+    puts "Promedio espera en cola total en segundos: " + pec.to_s
+    puts "Promedio espera en cola total en minutos: " + (pec/60).to_s
+    puts "Promedio espera en cola verde en segundos: " + pecV.to_s
+    puts "Promedio espera en cola verde en minutos: " + (pecV/60).to_s
+    puts "Promedio espera en cola amarillo en segundos: " + pecA.to_s
+    puts "Promedio espera en cola amarillo en minutos: " + (pecA/60).to_s
+    puts "Promedio espera en cola rojo en segundos: " + pecR.to_s
+    puts "Promedio espera en cola rojo en minutos: " + (pecR/60).to_s
+    puts "            "
+    puts "Porcentaje Tiempo Ocioso: " + porcentajeTiempoOcioso.to_s
+
+    puts "Total medicos: " + $cantidadmedicos.to_s
+    puts "nsvMax: " + $nsvmax.to_s
+    gets()
 
 
-	pec = ($sumatoriaPermanenciaSistema - $sumatoriaTiempoAtencion) / $nt
-	pecV = ($SPSV - $STAV)/$ntv
-	pecA = ($SPSA - $STAA)/$nta
-	pecR = ($SPSR - $STAR)/$ntr
-	puts "Pacientes que pasaron por el sistema: " + $nt.to_s
-	puts "tf en horas: " + ($tf/3600).to_s
-	puts "tf en dias: " + ($tf/(3600*24)).to_s
-	puts "            "
-	puts "Promedio espera en cola total en segundos: " + pec.to_s
-	puts "Promedio espera en cola total en minutos: " + (pec/60).to_s
-	puts "Promedio espera en cola verde en segundos: " + pecV.to_s
-	puts "Promedio espera en cola verde en minutos: " + (pecV/60).to_s
-	puts "Promedio espera en cola amarillo en segundos: " + pecA.to_s
-	puts "Promedio espera en cola amarillo en minutos: " + (pecA/60).to_s
-	puts "Promedio espera en cola rojo en segundos: " + pecR.to_s
-	puts "Promedio espera en cola rojo en minutos: " + (pecR/60).to_s
-	
-	puts "Total medicos: " + $cantidadmedicos.to_s
-	puts "nsvMax: " + $nsvmax.to_s
-	gets()
 
-
-	
 #simulacion.printValues()
 #gets()
 
-end
+  end
 
 rescue Exception => e
-puts e.message 
-puts e.backtrace.inspect
-gets()
+  puts e.message
+  puts e.backtrace.inspect
+  gets()
 
- end
- 
- 
- 
- 
- raise_and_rescue
+end
+
+
+
+
+raise_and_rescue
